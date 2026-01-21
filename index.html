@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Invitation</title>
+
+<!-- GSAP -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+html,body{height:100%}
+body{
+    background:#111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#3f2f22;
+}
+
+/* ===== REELS FRAME 9:16 ===== */
+.reels-frame{
+    width:100%;
+    max-width:420px;
+    aspect-ratio:9/16;
+    background:#f6f1eb;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border-radius:26px;
+    box-shadow:0 0 60px rgba(0,0,0,.6);
+    scroll-snap-type:y mandatory;
+}
+.reels-frame::-webkit-scrollbar{display:none}
+
+/* ===== SCENE ===== */
+section{
+    height:100%;
+    scroll-snap-align:start;
+    padding:60px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+
+/* HERO */
+.hero{
+    background:linear-gradient(135deg,#c9a77d,#f5efe6);
+}
+
+.card{
+    background:rgba(255,255,255,.3);
+    backdrop-filter:blur(12px);
+    border-radius:28px;
+    padding:22px;
+    max-width:380px;
+    width:100%;
+    box-shadow:0 30px 70px rgba(0,0,0,.35);
+}
+
+video{
+    width:100%;
+    aspect-ratio:9/16;
+    object-fit:cover;
+    border-radius:22px;
+}
+
+/* BUTTON */
+.btn{
+    display:inline-block;
+    margin-top:15px;
+    padding:12px 32px;
+    background:#8b5e3c;
+    color:white;
+    border-radius:40px;
+    text-decoration:none;
+}
+
+/* MUSIC */
+.music-btn{
+    position:fixed;
+    bottom:20px;right:20px;
+    width:55px;height:55px;
+    border-radius:50%;
+    background:#8b5e3c;
+    color:white;
+    font-size:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:999;
+}
+
+/* COUNTDOWN */
+.countdown{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:20px;
+}
+.time{
+    background:white;
+    padding:12px;
+    border-radius:16px;
+    min-width:65px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+/* GALLERY */
+.gallery{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+.gallery img{
+    width:100%;
+    border-radius:16px;
+}
+
+/* GUESTBOOK */
+form{max-width:350px;margin:auto}
+input,textarea{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:none;
+    margin-bottom:10px;
+}
+.guest{
+    background:white;
+    padding:10px;
+    border-radius:14px;
+    margin-bottom:8px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+    <source src="music.mp3">
+</audio>
+<div class="music-btn" onclick="toggleMusic()">🎵</div>
+
+<div class="reels-frame">
+
+<!-- HERO -->
+<section class="hero">
+<div class="card hero-card">
+    <video autoplay muted loop>
+        <source src="wedding.mp4">
+    </video>
+    <h2 id="guestName"></h2>
+    <h1>Wedding Invitation</h1>
+    <p><i>invite you to join their wedding celebration on</i></p>
+</div>
+</section>
+
+<!-- ACARA -->
+<section id="acara">
+<div>
+    <h1>Akad Nikah</h1>
+    <p>26 Juli 2026 • 17.00 WIB</p>
+
+    <div class="countdown" id="countdown"></div>
+
+    <br>
+    <a href="https://maps.app.goo.gl/8FskWGnVLhWZRJ1w8" target="_blank" class="btn">
+        📍 Google Maps
+    </a>
+    <br><br>
+    <a id="rsvp" class="btn">📩 RSVP WhatsApp</a>
+</div>
+</section>
+
+<!-- GALLERY -->
+<section>
+<div>
+    <h1>Galeri Foto</h1><br>
+    <div class="gallery">
+        <img src="foto1.png">
+        <img src="foto2.png">
+        <img src="foto3.png">
+        <img src="foto4.png">
+    </div>
+</div>
+</section>
+
+<!-- GUESTBOOK -->
+<section>
+<div>
+    <h1>Buku Tamu</h1><br>
+    <form onsubmit="saveGuest(event)">
+        <input id="name" placeholder="Nama" required>
+        <textarea id="message" placeholder="Ucapan & Doa" required></textarea>
+        <button class="btn">Kirim</button>
+    </form>
+    <div id="guestList"></div>
+</div>
+</section>
+
+</div>
+
+<script>
+/* ===== GSAP SCENE CINEMATIC ===== */
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.utils.toArray("section").forEach(section=>{
+    gsap.from(section.children,{
+        scrollTrigger:{
+            trigger:section,
+            scroller:".reels-frame",
+            start:"top center"
+        },
+        y:80,
+        opacity:0,
+        scale:.95,
+        duration:1,
+        ease:"power4.out"
+    });
+});
+
+/* MUSIC */
+let music=document.getElementById("music"),play=false;
+function toggleMusic(){play?music.pause():music.play();play=!play}
+
+/* NAMA TAMU */
+const to=new URLSearchParams(location.search).get("to");
+if(to) guestName.innerText="Kepada Yth:\n"+to;
+
+/* RSVP */
+document.getElementById("rsvp").href=
+`https://wa.me/62895702630451?text=Halo,%20saya%20${to||"tamu"}%20akan%20hadir.`;
+
+/* COUNTDOWN */
+const target=new Date("July 26, 2026 17:00").getTime();
+setInterval(()=>{
+let d=target-Date.now();
+countdown.innerHTML=`
+<div class="time">${Math.floor(d/86400000)}<br>Hari</div>
+<div class="time">${Math.floor(d/3600000)%24}<br>Jam</div>
+<div class="time">${Math.floor(d/60000)%60}<br>Menit</div>
+<div class="time">${Math.floor(d/1000)%60}<br>Detik</div>`;
+},1000);
+
+/* GUESTBOOK */
+function saveGuest(e){
+e.preventDefault();
+let data=JSON.parse(localStorage.getItem("guests")||"[]");
+data.unshift({n:name.value,m:message.value});
+localStorage.setItem("guests",JSON.stringify(data));
+e.target.reset();loadGuest();
+}
+function loadGuest(){
+let d=JSON.parse(localStorage.getItem("guests")||"[]");
+guestList.innerHTML=d.map(g=>`<div class="guest"><b>${g.n}</b><br>${g.m}</div>`).join("");
+}
+loadGuest();
+</script>
+
+</body>
+</html>
